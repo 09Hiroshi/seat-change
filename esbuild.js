@@ -3,11 +3,7 @@ import { GasPlugin } from "esbuild-gas-plugin";
 
 esbuild
   .build({
-    entryPoints: [
-      "./src/main.ts",
-      "./src/validation.ts",
-      "./src/seat.ts",
-    ],
+    entryPoints: ["./src/main.ts"],
     bundle: true,
     minify: true,
     outfile: "./dist/main.js",

@@ -1,0 +1,4 @@
+.clasp.json
+
+# tsファイルから生成されるjsファイル
+dist/main.js
