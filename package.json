@@ -7,8 +7,9 @@
   "scripts": {
     "build": "node esbuild.js",
     "push": "clasp push",
-    "open": "clasp open",
-    "deploy": "npm run build && node updateFileContents.js && npm run push"
+    "fix": "node updateFileContents.js",
+    "deploy": "npm run build && npm run fix && npm run push",
+    "open": "clasp open"
   },
   "type": "module"
 }
