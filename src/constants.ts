@@ -1,4 +1,4 @@
 export const SHEET_NAMES = {
-  GROUPS: "グループ分け",
-  SEATS: "座席",
+  GROUPING: "グループ分け",
+  SEAT: "座席",
 };

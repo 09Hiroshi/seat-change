@@ -48,7 +48,7 @@ export const validation = () => {
  */
 const getGroupingSheetValidationInfo = (): { validationInfo: ValidationInfo } => {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAMES.GROUPS);
+  const sheet = ss.getSheetByName(SHEET_NAMES.GROUPING);
   if (!sheet) {
     throw new Error("シートが見つかりません");
   }
@@ -84,7 +84,7 @@ const getGroupingSheetValidationInfo = (): { validationInfo: ValidationInfo } =>
  */
 const getSeatSheetValidationInfo = (): { validationInfo: ValidationInfo } => {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAMES.SEATS);
+  const sheet = ss.getSheetByName(SHEET_NAMES.SEAT);
   if (!sheet) {
     throw new Error("シートが見つかりません");
   }
