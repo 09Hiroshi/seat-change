@@ -18,6 +18,8 @@ class Seat {
     public member: Member,
     // 席
     public seat: string,
+    // 固定座席かどうか
+    public isFixed: boolean,
   ) {
     this.member = member;
     this.seat = seat;
