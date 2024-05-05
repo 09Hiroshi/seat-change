@@ -34,14 +34,17 @@ const main = () => {
   // バリデーションを実行
   Logger.log("バリデーションを実行します");
   validation();
+  Logger.log("バリデーションが成功しました");
   // グループ分けシートからメンバー情報を取得
   Logger.log("グループ分けシートからメンバー情報を取得します");
   const members = getMemberInfo();
+  Logger.log("メンバー情報の取得が完了しました");
   // 固定座席のメンバーと席替え対象のメンバーとに分ける
   Logger.log("固定座席のメンバーと席替え対象のメンバーとに分けます");
   const { fixedSeatMembers, changeTargetMembers } = divideMembers(members);
+  Logger.log("メンバーの分割が完了しました");
   // 初期値の生成
-  Logger.log("初期値を生成します");
+  Logger.log("各座席へメンバーを割り当てます（初期値の生成）");
   const initialSeats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
   Logger.log("初期値の生成が完了しました");
 }
@@ -98,7 +101,7 @@ const divideMembers = (members: Member[]): { fixedSeatMembers: Member[], changeT
 }
 
 /**
- * 初期値の生成
+ * 各座席へメンバーを割り当てる（初期値の生成）
  * @param fixedSeatMembers 固定座席のメンバー
  * @param changeTargetMembers 席替え対象のメンバー
  * @returns Seat[] 座席リスト

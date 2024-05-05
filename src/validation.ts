@@ -38,8 +38,6 @@ export const validation = () => {
       throw new Error("固定座席の人の名前が一致していません");
     }
   });
-
-  console.log("バリデーションが成功しました");
 }
 
 /**
