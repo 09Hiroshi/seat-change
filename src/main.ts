@@ -33,6 +33,8 @@ const main = () => {
   // グループ分けシートからメンバー情報を取得
   Logger.log("グループ分けシートからメンバー情報を取得します");
   const members = getMemberInfo();
+  // 固定座席のメンバーと席替え対象のメンバーとに分ける
+  const { fixedSeatMembers, changeTargetMembers } = divideMembers(members);
 }
 
 /**
@@ -63,6 +65,26 @@ const getMemberInfo = (): Member[] => {
     }
   }
   return members;
+}
+
+/**
+ * 固定座席のメンバーと席替え対象のメンバーとに分ける
+ * @param members メンバーリスト
+ * @returns
+ * fixedSeatMembers: 固定座席のメンバー
+ * changeTargetMembers: 席替え対象のメンバー
+ */
+const divideMembers = (members: Member[]): { fixedSeatMembers: Member[], changeTargetMembers: Member[] } => {
+  const fixedSeatMembers: Member[] = [];
+  const changeTargetMembers: Member[] = [];
+  members.forEach(member => {
+    if (member.name.startsWith("#")) {
+      fixedSeatMembers.push(member);
+    } else {
+      changeTargetMembers.push(member);
+    }
+  });
+  return { fixedSeatMembers, changeTargetMembers };
 }
 
 main();
