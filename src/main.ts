@@ -12,6 +12,18 @@ class Member {
   }
 }
 
+class Seat {
+  constructor(
+    // メンバー
+    public member: Member,
+    // 席
+    public seat: string,
+  ) {
+    this.member = member;
+    this.seat = seat;
+  }
+}
+
 const main = () => {
   // バリデーションを実行
   Logger.log("バリデーションを実行します");
