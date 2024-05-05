@@ -39,6 +39,7 @@ const main = () => {
 
 /**
  * グループ分けシートからメンバー情報を取得する
+ * @returns Member[] メンバーリスト
  */
 const getMemberInfo = (): Member[] => {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
