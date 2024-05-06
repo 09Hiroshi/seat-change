@@ -117,7 +117,7 @@ export const calculateEvaluationValue = (sheetName: string, seats: Seat[]): numb
  */
 export const crossover = (seats: Seat[]): { newSeats: Seat[], firstCrossoverSeat: Seat, secondCrossoverSeat: Seat } => {
   // 評価値が上回らない場合、交叉を行わないため、座席リストを一時的にコピーする
-  const newSeats = seats;
+  const newSeats = JSON.parse(JSON.stringify(seats));
 
   // 交叉の対象となる1つ目の座席
   const firstCrossoverSeat = selectFirstCrossoverSeat(newSeats);
