@@ -63,3 +63,45 @@ export const generateInitialSeats = (fixedSeatMembers: Member[], changeTargetMem
 
   return initialSeats;
 }
+
+/**
+ * 評価値の計算を行う（自身の座席から見て下と右の座席を確認し、同一グループの場合に評価値をプラスする）
+ * @param sheetName シート名
+ * @param seats 座席リスト
+ * @returns number 評価値
+ */
+export const calculateEvaluationValue = (sheetName: string, seats: Seat[]): number => {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error("座席シートが見つかりません");
+  }
+
+  const lastColumn = sheet.getLastColumn();
+  const lastRow = sheet.getLastRow();
+  let evaluationValue = 0;
+  for (let col = 1; col <= lastColumn; col++) {
+    for (let row = 1; row <= lastRow; row++) {
+      // 対象セルが座席ではない場合、次のセルへ移動
+      const cellValue = sheet.getRange(row, col).getValue();
+      if (!cellValue.startsWith("#") && cellValue === "") {
+        continue;
+      }
+      const seat = seats.find(seat => seat.seatColumn === col && seat.seatRow === row);
+      if (!seat) {
+        throw new Error(`座席が見つかりません（${col}列${row}行）`);
+      }
+      // 下の座席が同じグループの場合、評価値+8
+      const downSeat = seats.find(seat => seat.seatColumn === col && seat.seatRow === row + 1);
+      if (downSeat && seat.member.groupName == downSeat.member.groupName) {
+        evaluationValue += 8;
+      }
+      // 右の座席が同じグループの場合、評価値+10
+      const rightSeat = seats.find(seat => seat.seatColumn === col + 1 && seat.seatRow === row);
+      if (rightSeat && seat.member.groupName == rightSeat.member.groupName) {
+        evaluationValue += 10;
+      }
+    }
+  }
+  return evaluationValue;
+}

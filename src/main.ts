@@ -2,7 +2,7 @@ import { SHEET_NAMES } from "./constants";
 import { Member } from "./member";
 import { Seat } from "./seat";
 import { validation } from "./validation";
-import { generateInitialSeats } from "./seatChangeAlgorithm";
+import { generateInitialSeats, calculateEvaluationValue } from "./seatChangeAlgorithm";
 
 const main = () => {
   // バリデーションを実行
@@ -29,6 +29,18 @@ const main = () => {
   Logger.log("座席にバックグラウンドカラーを設定します");
   setBackgroundColor(newSheetName, initialSeats);
   Logger.log("バックグラウンドカラーの設定が完了しました");
+
+  let evaluationValue = 0;
+  // 無限ループ
+  while (true) {
+    // 評価値の計算
+    evaluationValue = calculateEvaluationValue(newSheetName, initialSeats);
+
+    Logger.log(`評価値：${evaluationValue}`)
+
+    // TODO: 修正
+    break;
+  }
 }
 
 /**
