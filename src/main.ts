@@ -4,6 +4,11 @@ import { Seat } from "./seat";
 import { validation } from "./validation";
 import { generateInitialSeats, calculateEvaluationValue } from "./seatChangeAlgorithm";
 
+// mainを実行すると2回実行されてしまうため、run関数を呼び出すようにする
+const run = () => {
+}
+run();
+
 const main = () => {
   // バリデーションを実行
   Logger.log("バリデーションを実行します");
@@ -158,4 +163,4 @@ const setBackgroundColor = (sheetName: string, initialSeats: Seat[]) => {
   }
 }
 
-main();
+main(); // mainを用意しておかないとGASが反映されない & 最後に配置しないと実行時にエラーとなる
