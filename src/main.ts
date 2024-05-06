@@ -2,7 +2,7 @@ import { SHEET_NAMES } from "./constants";
 import { Member } from "./member";
 import { Seat } from "./seat";
 import { validation } from "./validation";
-import { generateInitialSeats, calculateEvaluationValue } from "./seatChangeAlgorithm";
+import { generateInitialSeats, calculateEvaluationValue, crossover } from "./seatChangeAlgorithm";
 
 // mainを実行すると2回実行されてしまうため、run関数を呼び出すようにする
 const run = () => {
@@ -46,6 +46,11 @@ const main = () => {
     // TODO: 修正
     break;
   }
+  const newSeat = crossover(newSheetName, initialSeats);
+
+  evaluationValue = calculateEvaluationValue(newSheetName, newSeat);
+
+  Logger.log(`評価値：${evaluationValue}`)
 }
 
 /**

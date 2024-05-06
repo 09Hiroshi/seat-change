@@ -105,3 +105,78 @@ export const calculateEvaluationValue = (sheetName: string, seats: Seat[]): numb
   }
   return evaluationValue;
 }
+
+/**
+ * 交叉を行う（席替え）
+ * @param sheetName シート名
+ * @param seats 座席リスト
+ */
+export const crossover = (sheetName: string, seats: Seat[]): Seat[] => {
+  // 交叉の対象となる1つ目の座席
+  const firstCrossoverSeat = selectFirstCrossoverSeat(seats);
+  Logger.log(`交叉の対象となる1つ目の座席：${firstCrossoverSeat.member.name}`)
+  // 交叉の対象となる2つ目の座席
+  const secondCrossoverSeat = selectSecondCrossoverSeat(seats, firstCrossoverSeat);
+  Logger.log(`交叉の対象となる2つ目の座席：${secondCrossoverSeat.member.name}`);
+
+  // 1つ目の座席と2つ目の座席のメンバーを交換する
+  const tmpMember = firstCrossoverSeat.member;
+  firstCrossoverSeat.member = secondCrossoverSeat.member;
+  secondCrossoverSeat.member = tmpMember;
+
+  // 変更した内容をシートに反映する
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error("座席シートが見つかりません");
+  }
+  // メンバー名を更新する
+  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setValue(firstCrossoverSeat.member.name);
+  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setValue(secondCrossoverSeat.member.name);
+  // バックグラウンドカラーを更新する
+  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setBackground(firstCrossoverSeat.member.groupColor);
+  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setBackground(secondCrossoverSeat.member.groupColor);
+
+  return seats;
+}
+
+/**
+ * 交叉の対象となる1つ目の座席を選択する
+ * @param seats 座席リスト
+ * @returns Seat 交叉の対象となる1つ目の座席
+ */
+const selectFirstCrossoverSeat = (seats: Seat[]): Seat => {
+  while (true) {
+    const randomIndex = Math.floor(Math.random() * seats.length);
+    const seat = seats[randomIndex];
+    // 固定座席の場合、再度ランダムで選択する
+    if (seat.isFixedSeat) {
+      continue;
+    }
+    return seat;
+  }
+}
+
+/**
+ * 交叉の対象となる2つ目の座席を選択する
+ * @param seats 座席リスト
+ */
+const selectSecondCrossoverSeat = (seats: Seat[], firstCrossoverSeat: Seat): Seat => {
+  while (true) {
+    const randomIndex = Math.floor(Math.random() * seats.length);
+    const seat = seats[randomIndex];
+    // 固定座席の場合、再度ランダムで選択する
+    if (seat.isFixedSeat) {
+      continue;
+    }
+    // 1つ目の座席と同一グループの場合、再度ランダムで選択する
+    if (firstCrossoverSeat.member.groupName === seat.member.groupName) {
+      continue;
+    }
+    // 1つ目の座席と同一座席の場合、再度ランダムで選択する
+    if (firstCrossoverSeat.seatColumn === seat.seatColumn && firstCrossoverSeat.seatRow === seat.seatRow) {
+      continue;
+    }
+    return seat;
+  }
+}
