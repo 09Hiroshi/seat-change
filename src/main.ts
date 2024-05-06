@@ -5,11 +5,14 @@ class Member {
   constructor(
     // 名前
     public name: string,
-    // グループ
-    public group: string,
+    // グループ名
+    public groupName: string,
+    // グループカラー
+    public groupColor: string,
   ) {
     this.name = name;
-    this.group = group;
+    this.groupName = groupName;
+    this.groupColor = groupColor;
   }
 }
 
@@ -66,6 +69,7 @@ const getMemberInfo = (): Member[] => {
   for (let col = 1; col <= lastColumn; col++) {
     // グループ名を取得
     const groupName = sheet.getRange(1, col).getValue();
+    const groupColor = sheet.getRange(1, col).getBackground();
     for (let row = 2; row <= lastRow; row++) {
       // 対象セルの文字列を取得
       const cellValue = sheet.getRange(row, col).getValue();
@@ -73,7 +77,7 @@ const getMemberInfo = (): Member[] => {
         // 文字列が空なので、次の列（グループ）へ移動
         break;
       }
-      const member = new Member(cellValue, groupName);
+      const member = new Member(cellValue, groupName, groupColor);
       members.push(member);
     }
   }
