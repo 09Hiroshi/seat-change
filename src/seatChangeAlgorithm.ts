@@ -1,6 +1,6 @@
 import { SHEET_NAMES } from "./constants";
 import { Member } from "./member";
-import { Seat } from "./seat";
+import { Seat } from './seat';
 
 /**
  * 初期値の生成（各座席へメンバーを割り当てる）
@@ -93,12 +93,12 @@ export const calculateEvaluationValue = (sheetName: string, seats: Seat[]): numb
       }
       // 下の座席が同じグループの場合、評価値+8
       const downSeat = seats.find(seat => seat.seatColumn === col && seat.seatRow === row + 1);
-      if (downSeat && seat.member.groupName == downSeat.member.groupName) {
+      if (downSeat && seat.member.groupName === downSeat.member.groupName) {
         evaluationValue += 8;
       }
       // 右の座席が同じグループの場合、評価値+10
       const rightSeat = seats.find(seat => seat.seatColumn === col + 1 && seat.seatRow === row);
-      if (rightSeat && seat.member.groupName == rightSeat.member.groupName) {
+      if (rightSeat && seat.member.groupName === rightSeat.member.groupName) {
         evaluationValue += 10;
       }
     }
@@ -110,34 +110,26 @@ export const calculateEvaluationValue = (sheetName: string, seats: Seat[]): numb
  * 交叉を行う（席替え）
  * @param sheetName シート名
  * @param seats 座席リスト
+ * @returns
+ * Seat[] 座席リスト
+ * Seat 交叉の対象となる1つ目の座席
+ * Seat 交叉の対象となる2つ目の座席
  */
-export const crossover = (sheetName: string, seats: Seat[]): Seat[] => {
+export const crossover = (seats: Seat[]): { newSeats: Seat[], firstCrossoverSeat: Seat, secondCrossoverSeat: Seat } => {
+  // 評価値が上回らない場合、交叉を行わないため、座席リストを一時的にコピーする
+  const newSeats = seats;
+
   // 交叉の対象となる1つ目の座席
-  const firstCrossoverSeat = selectFirstCrossoverSeat(seats);
-  Logger.log(`交叉の対象となる1つ目の座席：${firstCrossoverSeat.member.name}`)
+  const firstCrossoverSeat = selectFirstCrossoverSeat(newSeats);
   // 交叉の対象となる2つ目の座席
-  const secondCrossoverSeat = selectSecondCrossoverSeat(seats, firstCrossoverSeat);
-  Logger.log(`交叉の対象となる2つ目の座席：${secondCrossoverSeat.member.name}`);
+  const secondCrossoverSeat = selectSecondCrossoverSeat(newSeats, firstCrossoverSeat);
 
   // 1つ目の座席と2つ目の座席のメンバーを交換する
   const tmpMember = firstCrossoverSeat.member;
   firstCrossoverSeat.member = secondCrossoverSeat.member;
   secondCrossoverSeat.member = tmpMember;
 
-  // 変更した内容をシートに反映する
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    throw new Error("座席シートが見つかりません");
-  }
-  // メンバー名を更新する
-  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setValue(firstCrossoverSeat.member.name);
-  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setValue(secondCrossoverSeat.member.name);
-  // バックグラウンドカラーを更新する
-  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setBackground(firstCrossoverSeat.member.groupColor);
-  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setBackground(secondCrossoverSeat.member.groupColor);
-
-  return seats;
+  return { newSeats, firstCrossoverSeat, secondCrossoverSeat };
 }
 
 /**

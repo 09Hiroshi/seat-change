@@ -24,33 +24,45 @@ const main = () => {
   Logger.log("メンバーの分割が完了しました");
   // 初期値の生成
   Logger.log("各座席へメンバーを割り当てます（初期値の生成）");
-  const initialSeats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
+  let seats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
   Logger.log("初期値の生成が完了しました");
   // 新しい座席シート（座席_yyyyMMddHHmmss）を生成
   Logger.log("座席を生成します");
-  const newSheetName = generateSeats(initialSeats);
+  const newSheetName = generateSeats(seats);
   Logger.log("座席の生成が完了しました");
   // 座席にバックグラウンドカラーを設定
   Logger.log("座席にバックグラウンドカラーを設定します");
-  setBackgroundColor(newSheetName, initialSeats);
+  setBackgroundColor(newSheetName, seats);
   Logger.log("バックグラウンドカラーの設定が完了しました");
-
-  let evaluationValue = 0;
-  // 無限ループ
-  while (true) {
-    // 評価値の計算
-    evaluationValue = calculateEvaluationValue(newSheetName, initialSeats);
-
-    Logger.log(`評価値：${evaluationValue}`)
-
-    // TODO: 修正
-    break;
-  }
-  const newSeat = crossover(newSheetName, initialSeats);
-
-  evaluationValue = calculateEvaluationValue(newSheetName, newSeat);
-
+  // 初期評価値の計算
+  let evaluationValue = calculateEvaluationValue(newSheetName, seats);
   Logger.log(`評価値：${evaluationValue}`)
+  let notChangeCount = 0;
+  let generation = 0;
+  while (true) {
+    generation++;
+    Logger.log(`第${generation}世代`);
+    // 交叉（席替え）
+    const { newSeats, firstCrossoverSeat, secondCrossoverSeat } = crossover(seats);
+    // 評価値の計算
+    const newEvaluationValue = calculateEvaluationValue(newSheetName, newSeats);
+    if (newEvaluationValue > evaluationValue) {
+      Logger.log(`第${generation}世代：評価値の更新（${newEvaluationValue}）`);
+      evaluationValue = newEvaluationValue;
+      notChangeCount = 0;
+
+      Logger.log(`席替え（${firstCrossoverSeat.member.name}←→${secondCrossoverSeat.member.name}）`);
+      seats = newSeats;
+      updateSeatSheet(newSheetName, firstCrossoverSeat, secondCrossoverSeat);
+      continue;
+    }
+    notChangeCount++;
+    // 評価値がn回変わらなかった場合、席替えを終了する
+    if (notChangeCount > 1000) {
+      Logger.log("席替えを終了します");
+      break;
+    }
+  }
 }
 
 /**
@@ -166,6 +178,27 @@ const setBackgroundColor = (sheetName: string, initialSeats: Seat[]) => {
   if (tmpInitialSeats.length > 0) {
     throw new Error("座席情報がシートに反映されていません");
   }
+}
+
+/**
+ * 新規作成した座席シートを更新する
+ * @param sheetName 
+ * @param firstCrossoverSeat 
+ * @param secondCrossoverSeat 
+ */
+const updateSeatSheet = (sheetName: string, firstCrossoverSeat: Seat, secondCrossoverSeat: Seat) => {
+  // 変更した内容をシートに反映する
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error("座席シートが見つかりません");
+  }
+  // メンバー名を更新する
+  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setValue(firstCrossoverSeat.member.name);
+  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setValue(secondCrossoverSeat.member.name);
+  // バックグラウンドカラーを更新する
+  sheet.getRange(firstCrossoverSeat.seatRow, firstCrossoverSeat.seatColumn).setBackground(firstCrossoverSeat.member.groupColor);
+  sheet.getRange(secondCrossoverSeat.seatRow, secondCrossoverSeat.seatColumn).setBackground(secondCrossoverSeat.member.groupColor);
 }
 
 main(); // mainを用意しておかないとGASが反映されない & 最後に配置しないと実行時にエラーとなる
