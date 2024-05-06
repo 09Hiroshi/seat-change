@@ -50,10 +50,14 @@ const main = () => {
   Logger.log("各座席へメンバーを割り当てます（初期値の生成）");
   const initialSeats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
   Logger.log("初期値の生成が完了しました");
-  // 座席を生成
+  // 新しい座席シート（座席_yyyyMMdd_HHmmss）を生成
   Logger.log("座席を生成します");
-  generateSeats(initialSeats);
+  const newSheetName = generateSeats(initialSeats);
   Logger.log("座席の生成が完了しました");
+  // 座席にバックグラウンドカラーを設定
+  Logger.log("座席にバックグラウンドカラーを設定します");
+  setBackgroundColor(newSheetName, initialSeats);
+  Logger.log("バックグラウンドカラーの設定が完了しました");
 }
 
 /**
@@ -91,9 +95,7 @@ const getMemberInfo = (): Member[] => {
 /**
  * 固定座席のメンバーと席替え対象のメンバーとに分ける
  * @param members メンバーリスト
- * @returns
- * fixedSeatMembers: 固定座席のメンバー
- * changeTargetMembers: 席替え対象のメンバー
+ * @returns fixedSeatMembers 固定座席のメンバー, changeTargetMembers 席替え対象のメンバー
  */
 const divideMembers = (members: Member[]): { fixedSeatMembers: Member[], changeTargetMembers: Member[] } => {
   const fixedSeatMembers: Member[] = [];
@@ -173,8 +175,9 @@ const generateInitialSeats = (fixedSeatMembers: Member[], changeTargetMembers: M
 /**
  * 初期値を使用して座席を生成（新規にシートを作成する）
  * @param initialSeats 
+ * @returns string 新規シート名
  */
-const generateSeats = (initialSeats: Seat[]) => {
+const generateSeats = (initialSeats: Seat[]): string => {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_NAMES.SEAT);
   if (!sheet) {
@@ -192,6 +195,46 @@ const generateSeats = (initialSeats: Seat[]) => {
   initialSeats.forEach(seat => {
     copiedSheet.getRange(seat.seatRow, seat.seatColumn).setValue(seat.member.name);
   });
+
+  return newSheetName;
+}
+
+/**
+ * 座席にバックグラウンドカラーを設定する
+ * @param sheetName シート名
+ */
+const setBackgroundColor = (sheetName: string, initialSeats: Seat[]) => {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName); // Change the type of sheetName to 'string'
+  if (!sheet) {
+    throw new Error("色塗り対象のシートが見つかりません");
+  }
+
+  const lastColumn = sheet.getLastColumn();
+  const lastRow = sheet.getLastRow();
+  // initialSeatsをコピー（使用したらリストから削除するためletで宣言）
+  let tmpInitialSeats = initialSeats;
+  for (let col = 1; col <= lastColumn; col++) {
+    for (let row = 1; row <= lastRow; row++) {
+      const cellValue = sheet.getRange(row, col).getValue();
+      if (cellValue === "") {
+        // 文字列が空なので、次のセルへ移動
+        continue;
+      }
+      // initialSeatsから該当する座席を取得する
+      const seat = initialSeats.find(seat => seat.seatColumn === col && seat.seatRow === row);
+      if (!seat) {
+        throw new Error(`座席情報が見つかりません（列=${col}, 行=${row}）`);
+      }
+      sheet.getRange(row, col).setBackground(seat.member.groupColor);
+      // tmpInitialSeatsから取得した座席を削除
+      tmpInitialSeats = tmpInitialSeats.filter(s => s.seatColumn !== col || s.seatRow !== row);
+    }
+  }
+  // tmpInitialSeatsが空でない場合、エラー
+  if (tmpInitialSeats.length > 0) {
+    throw new Error("座席情報がシートに反映されていません");
+  }
 }
 
 main();
