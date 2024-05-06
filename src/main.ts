@@ -50,6 +50,10 @@ const main = () => {
   Logger.log("各座席へメンバーを割り当てます（初期値の生成）");
   const initialSeats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
   Logger.log("初期値の生成が完了しました");
+  // 座席を生成
+  Logger.log("座席を生成します");
+  generateSeats(initialSeats);
+  Logger.log("座席の生成が完了しました");
 }
 
 /**
@@ -164,6 +168,30 @@ const generateInitialSeats = (fixedSeatMembers: Member[], changeTargetMembers: M
   }
 
   return initialSeats;
+}
+
+/**
+ * 初期値を使用して座席を生成（新規にシートを作成する）
+ * @param initialSeats 
+ */
+const generateSeats = (initialSeats: Seat[]) => {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAMES.SEAT);
+  if (!sheet) {
+    throw new Error("座席シートが見つかりません");
+  }
+
+  // 座席シートをコピー（座席シートの枠線を使用したいため）
+  const copiedSheet = sheet.copyTo(ss);
+  // 新規シート名を作成
+  const now = new Date();
+  const formattedDateTime = Utilities.formatDate(now, "JST", "yyyyMMdd_HHmmss");
+  const newSheetName = `座席_${formattedDateTime}`;
+  copiedSheet.setName(newSheetName);
+  // 座席情報を書き込む
+  initialSeats.forEach(seat => {
+    copiedSheet.getRange(seat.seatRow, seat.seatColumn).setValue(seat.member.name);
+  });
 }
 
 main();
