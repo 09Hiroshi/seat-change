@@ -46,7 +46,7 @@ const main = () => {
     const { newSeats, firstCrossoverSeat, secondCrossoverSeat } = crossover(seats);
     // 評価値の計算
     const newEvaluationValue = calculateEvaluationValue(newSheetName, newSeats);
-    if (newEvaluationValue > evaluationValue) {
+    if (newEvaluationValue >= evaluationValue) {
       Logger.log(`第${generation}世代：評価値の更新（${newEvaluationValue}）`);
       evaluationValue = newEvaluationValue;
       notChangeCount = 0;
