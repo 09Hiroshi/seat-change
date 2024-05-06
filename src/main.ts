@@ -50,7 +50,7 @@ const main = () => {
   Logger.log("各座席へメンバーを割り当てます（初期値の生成）");
   const initialSeats = generateInitialSeats(fixedSeatMembers, changeTargetMembers);
   Logger.log("初期値の生成が完了しました");
-  // 新しい座席シート（座席_yyyyMMdd_HHmmss）を生成
+  // 新しい座席シート（座席_yyyyMMddHHmmss）を生成
   Logger.log("座席を生成します");
   const newSheetName = generateSeats(initialSeats);
   Logger.log("座席の生成が完了しました");
@@ -188,7 +188,7 @@ const generateSeats = (initialSeats: Seat[]): string => {
   const copiedSheet = sheet.copyTo(ss);
   // 新規シート名を作成
   const now = new Date();
-  const formattedDateTime = Utilities.formatDate(now, "JST", "yyyyMMdd_HHmmss");
+  const formattedDateTime = Utilities.formatDate(now, "JST", "yyyyMMddHHmmss");
   const newSheetName = `座席_${formattedDateTime}`;
   copiedSheet.setName(newSheetName);
   // 座席情報を書き込む
